@@ -43,9 +43,9 @@ export interface TracerEnv {
   _internal: {
     cache: TracerCache;
     printNameTagTip:
-      | undefined // meaning "no need to print"
-      | "print it"
-      | "already printed";
+    | undefined // meaning "no need to print"
+    | "print it"
+    | "already printed";
   };
   recorder?: TraceRecorder;
   switch?: Switch;
@@ -94,11 +94,11 @@ export interface StateOverrides {
 export type ContractInfo =
   | string // bytecode in hex or name of the contract
   | {
-      name: string;
-      libraries?: {
-        [libraryName: string]: ContractInfo;
-      };
+    name: string;
+    libraries?: {
+      [libraryName: string]: ContractInfo;
     };
+  };
 
 export interface Item<Params> {
   opcode: string;
@@ -112,6 +112,7 @@ export interface Item<Params> {
 export interface AwaitedItem<T> {
   isAwaitedItem: true;
   next: number;
+  prev?: number;
   parse: (
     step: MinimalInterpreterStep,
     currentAddress?: { value: string }

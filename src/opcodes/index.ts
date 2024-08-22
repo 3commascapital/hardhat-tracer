@@ -26,6 +26,7 @@ import sha3 from "./sha3";
 import sload from "./sload";
 import sstore from "./sstore";
 import staticcall from "./staticcall";
+import math from './math'
 
 export function parse(
   step: MinimalInterpreterStep,
@@ -64,6 +65,11 @@ export function parse(
       return return_.parse(step);
     case "REVERT":
       return revert.parse(step);
+    case "ADD":
+    case "MUL":
+    case "SUB":
+    case "DIV":
+      return math.parse(step);
     default:
       return;
   }
@@ -114,6 +120,11 @@ export async function format(
       return selfdestruct.format(item);
     case "EXCEPTION":
       return exception.format(item);
+    case "ADD":
+    case "MUL":
+    case "SUB":
+    case "DIV":
+      return math.format(item);
     default:
       return item.opcode + " not implemented";
   }
