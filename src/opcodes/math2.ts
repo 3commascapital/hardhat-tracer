@@ -3,10 +3,12 @@ import { MinimalInterpreterStep } from "hardhat/internal/hardhat-network/provide
 import { AwaitedItem, Item } from "../types";
 import { colorLabel, colorMath } from "../utils";
 
+type PossibleNumber = bigint | `0x${string}`;
+
 export interface MATH {
-  a: bigint | `0x${string}` | boolean;
-  b: bigint | `0x${string}` | boolean;
-  c: bigint | `0x${string}` | boolean;
+  a: PossibleNumber;
+  b: PossibleNumber;
+  c: PossibleNumber | boolean;
 }
 
 const operators = {
@@ -26,7 +28,6 @@ const operators = {
   AND: '&',
   OR: '|',
   XOR: '^',
-  NOT: '~',
 } as const
 
 export type Math2Opcode = keyof typeof operators
@@ -48,7 +49,6 @@ const bestAsHexList = [
   'AND',
   'OR',
   'XOR',
-  'NOT',
   // even though these start with s, they should never
   // get to the OpChecker type below so we
   // don't have to worry about negative shifting
