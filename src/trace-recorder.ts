@@ -27,7 +27,7 @@ import {
 } from "hardhat/internal/hardhat-network/provider/vm/types";
 import { parseExec } from "./utils";
 const debug = createDebug("hardhat-tracer:trace-recorder");
-let logged = false
+// let logged = false
 interface NewContractEvent {
   address: Address;
   code: Uint8Array;
@@ -210,10 +210,10 @@ export class TraceRecorder {
     step: MinimalInterpreterStep,
     resolve: ((result?: any) => void) | undefined
   ) {
-    if (!logged) {
-      console.log(this.tracerEnv.opcodes)
-      logged = true
-    }
+    // if (!logged) {
+    //   console.log('%o', [...this.tracerEnv.opcodes.keys()])
+    //   logged = true
+    // }
     if (!this.tracerEnv.switch!.verboseEnabled) return resolve?.();
     // debug("handleStep %s", step.opcode.name);
     if (!this.trace) {

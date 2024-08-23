@@ -73,14 +73,14 @@ describe("Hardhat Runtime Environment extension", function () {
       assert.strictEqual(this.hre.tracer.enabled, true);
     });
 
-    it.only("mainnet by rpc", async function () {
+    it("mainnet by rpc", async function () {
       await this.hre.run("trace", {
         hash:
           "0xc645204e28ffc9f75812e598c6ee7a959c501756062195b2f0fb003276fa39a7",
         // "0x23f7eb343fe541517cd7829763c46eca12c2987b4a2449d244babca77a72cf71",
         rpc: "https://eth-mainnet.g.alchemy.com/v2/" + ALCHEMY,
         v: true,
-        opcodes: ["SSTORE", "SLOAD", "MLOAD", "ADD", "MUL", "SUB", "DIV"].join(","),
+        opcodes: ["SSTORE", "SLOAD"].join(","),
         // print: "json",
         // nocompile: true,
       });
