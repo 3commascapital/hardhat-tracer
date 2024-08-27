@@ -49,9 +49,6 @@ const bestAsHexList = [
   'AND',
   'OR',
   'XOR',
-  // even though these start with s, they should never
-  // get to the OpChecker type below so we
-  // don't have to worry about negative shifting
   'SHL',
   'SHR',
   'SAR',
@@ -61,36 +58,29 @@ const bestAsHex = new Set<BestAsHexOpcode>(bestAsHexList)
 
 type OpChecker = (a: bigint, b: bigint, c: bigint, op: Math2Opcode) => boolean
 
-const operatorIsSigned = (op: Math2Opcode) => (
-  op.startsWith('S') && op !== 'SUB'
-)
 const toBool = (n: bigint) => BigInt(n) === 1n
 
 const divOperation: OpChecker = (a, b, c, op) => (
-  (!operatorIsSigned(op) || (a < 0n || b < 0n)) &&
-  (((a / b) === c) || (BigInt.asUintN(256, a / b) === c))
+  ((a / b) === c)
 )
 const ltOperation: OpChecker = (a, b, c, op) => (
-  (!operatorIsSigned(op) || (a < 0n || b < 0n)) &&
   ((a < b) === toBool(c))
 )
 const gtOperation: OpChecker = (a, b, c, op) => (
-  (!operatorIsSigned(op) || (a < 0n || b < 0n)) &&
   ((a > b) === toBool(c))
 )
 const modOperation: OpChecker = (a, b, c, op) => (
-  (!operatorIsSigned(op) || (a < 0n || b < 0n)) &&
-  ((a % b === c) || BigInt.asUintN(256, a % b) === c)
+  (a % b === c)
 )
 const operations = new Map<Math2Opcode, OpChecker>([
   ['ADD', (a, b, c) => (
-    a + b === c || BigInt.asUintN(256, a + b) === c
+    a + b === c
   )],
   ['SUB', (a, b, c) => (
-    a - b === c || BigInt.asUintN(256, a - b) === c
+    a - b === c
   )],
   ['MUL', (a, b, c) => (
-    a * b === c || BigInt.asUintN(256, a * b) === c
+    a * b === c
   )],
   ['DIV', divOperation],
   ['SDIV', divOperation],
@@ -101,7 +91,7 @@ const operations = new Map<Math2Opcode, OpChecker>([
   ['MOD', modOperation],
   ['SMOD', modOperation],
   ['EXP', (a, b, c) => (
-    (a ** b === c) || BigInt.asUintN(256, a ** b) === c
+    (a ** b === c)
   )],
   ['EQ', (a, b, c) => ((a === b) === toBool(c))],
 ])
@@ -110,7 +100,7 @@ const checkOperation = (
   opcode: Math2Opcode,
   a: bigint, b: bigint, c: bigint,
   debug: boolean = false, count = 0,
-): MATH => {
+): MATH | null => {
   let negA = -a
   let negB = -b
   let negC = -c
@@ -118,27 +108,23 @@ const checkOperation = (
     console.log({ a, b, c, negA, negB, negC })
   }
   const op = operations.get(opcode)!
-  if (op(a, b, c, opcode)) return { a, b, c }
-  else if (op(a, negB, c, opcode)) return { a, b: negB, c }
-  else if (op(negA, b, c, opcode)) return { a: negA, b, c }
-  else if (op(negA, negB, c, opcode)) return { a: negA, b: negB, c }
-  else if (op(a, b, negC, opcode)) return { a, b, c: negC }
-  else if (op(a, negB, negC, opcode)) return { a, b: negB, c: negC }
-  else if (op(negA, b, negC, opcode)) return { a: negA, b, c: negC }
-  else if (op(negA, negB, negC, opcode)) return { a: negA, b: negB, c: negC }
-  if (count === 1) {
-    throw new Error('unable to compute')
-  } else {
-    negA = BigInt.asUintN(256, negA)
-    negB = BigInt.asUintN(256, negB)
-    negC = BigInt.asUintN(256, negC)
-    return checkOperation(opcode, negA, negB, negC, debug, ++count)
-  }
-}
 
-const closestTo0 = (x: bigint) => {
-  const negX = BigInt.asUintN(256, -x)
-  return x < negX ? x : -negX
+  if (op(a, b, c, opcode)) return { a, b, c }
+  // else if (op(a, negB, c, opcode)) return { a, b: negB, c }
+  // else if (op(negA, b, c, opcode)) return { a: negA, b, c }
+  // else if (op(negA, negB, c, opcode)) return { a: negA, b: negB, c }
+  // else if (op(a, b, negC, opcode)) return { a, b, c: negC }
+  // else if (op(a, negB, negC, opcode)) return { a, b: negB, c: negC }
+  // else if (op(negA, b, negC, opcode)) return { a: negA, b, c: negC }
+  // else if (op(negA, negB, negC, opcode)) return { a: negA, b: negB, c: negC }
+  // if (count === 1) {
+  return null
+  // } else {
+  //   negA = BigInt.asUintN(256, negA)
+  //   negB = BigInt.asUintN(256, negB)
+  //   negC = BigInt.asUintN(256, negC)
+  //   return checkOperation(opcode, negA, negB, negC, debug, ++count)
+  // }
 }
 
 const asHex = (a: bigint, b: bigint, c: bigint) => ({
@@ -161,24 +147,17 @@ function parse(step: MinimalInterpreterStep): AwaitedItem<MATH> {
       // what is actually being used / most useful to viewers
       // might be worth putting this or even the entirity
       // of hex->bigint conversion behind a flag
-      const loA = closestTo0(a)
-      const loB = closestTo0(b)
-      const loC = closestTo0(c)
       let params!: MATH
       if (bestAsHex.has(opcode.name as BestAsHexOpcode)) {
         params = asHex(a, b, c)
       } else {
-        try {
-          params = checkOperation(
-            opcode.name as Math2Opcode,
-            loA, loB, loC,
-          )
-        } catch (err) {
-          // console.log({
-          //   opcode: opcode.name,
-          //   a, b, c,
-          //   loA, loB, loC,
-          // })
+        const p = checkOperation(
+          opcode.name as Math2Opcode,
+          a, b, c,
+        )
+        if (p) {
+          params = p
+        } else {
           params = asHex(a, b, c)
         }
       }

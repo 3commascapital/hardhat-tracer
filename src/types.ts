@@ -37,7 +37,7 @@ export interface TracerEnv {
   gasCost: boolean;
   enableAllOpcodes: boolean;
   use4bytesDirectory: boolean;
-  opcodes: Map<string, boolean>; // string[]; // TODO have a map of opcode to boolean
+  opcodes: Set<string>;
   nameTags: NameTags;
   printMode: PrintMode;
   _internal: {

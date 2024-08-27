@@ -238,7 +238,7 @@ export class TraceRecorder {
 
     if (
       this.tracerEnv.enableAllOpcodes ||
-      this.tracerEnv.opcodes.get(step.opcode.name)
+      this.tracerEnv.opcodes.has(step.opcode.name)
     ) {
       const result = parse(
         step,

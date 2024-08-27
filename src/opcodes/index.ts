@@ -26,7 +26,7 @@ import sha3 from "./sha3";
 import sload from "./sload";
 import sstore from "./sstore";
 import staticcall from "./staticcall";
-import * as math2 from './math'
+import * as math2 from './math2'
 
 export function parse(
   step: MinimalInterpreterStep,
