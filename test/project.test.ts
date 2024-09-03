@@ -38,7 +38,7 @@ describe("Hardhat Runtime Environment extension", function () {
       await this.hre.run("compile");
       await this.hre.run("run", { script: "scripts/deploy.ts", trace: true });
     });
-    it.only("opcodes print", async function () {
+    it("opcodes print", async function () {
       await this.hre.run("compile");
       await this.hre.run("run", { script: "scripts/opcodes.ts", trace: true });
     });
@@ -84,7 +84,7 @@ describe("Hardhat Runtime Environment extension", function () {
         // "0x23f7eb343fe541517cd7829763c46eca12c2987b4a2449d244babca77a72cf71",
         rpc: "https://eth-mainnet.g.alchemy.com/v2/" + ALCHEMY,
         v: true,
-        opcodes: ["NOT"].join(","),
+        // opcodes: ["SSTORE", "SLOAD"].join(","),
         // print: "json",
         // nocompile: true,
       });
